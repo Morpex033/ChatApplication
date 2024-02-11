@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Разделение страницы на три части */
+.chat-list,
+.chat,
+.chat-info {
+    float: left;
+    width: 33.33%;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Стили для списка чатов */
+.chat-list {
+    background-color: #f0f0f0;
+}
+
+.chat-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.chat-list li {
+    cursor: pointer;
+}
+
+/* Стили для выбранного чата */
+.chat {
+    flex: 1;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat h2 {
+    margin-top: 0;
+}
+
+.chat .messages {
+    height: calc(100% - 100px);
+    overflow-y: auto;
+}
+
+.chat form {
+    margin-top: 20px;
+}
+
+.chat form input[type="text"] {
+    width: calc(100% - 80px);
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.chat form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+/* Стили для информации о чате */
+.chat-info {
+    background-color: #f0f0f0;
+}
+
+.chat-info h3 {
+    margin-top: 0;
+}
+
+.chat-info .participants {
+    list-style-type: none;
+    padding: 0;
+}
+
+.chat-info .participants li {
+    margin-bottom: 5px;
+}
+
+.chat-info button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 100vh; /* 100% высоты видимой области */
+}
+
+.chat-header {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.chat-header {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.messages-container {
+    flex: 1; /* Занимает все доступное пространство внутри чата */
+    overflow-y: auto; /* Позволяет прокручивать только область с сообщениями */
+    padding: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+.message-form {
+    padding: 10px;
+    display: flex;
+}
+.message-form input[type="text"] {
+    flex: 1;
+    margin-right: 10px;
+}
+.message-form button {
+    flex-shrink: 0;
+}

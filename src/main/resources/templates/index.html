@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="css/indexStyle.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="chat-list">
+        <input type="text" placeholder="Search...">
+        <button>Search chat</button>
+        <ul>
+            
+        </ul>
+    </div>
+
+    <div class="chat">
+    <div class="chat-header">
+        <h2>Chat Title</h2>
+        <p>Participants Online: <span id="online-users">0</span></p>
+    </div>
+    <div class="messages-container">
+        <!-- Здесь будут сообщения -->
+        <div class="message">User 1: Message 1</div>
+        <div class="message">User 2: Message 2</div>
+        <div class="message">User 3: Message 3</div>
+        <!-- Добавьте другие сообщения по мере необходимости -->
+    </div>
+    <form class="message-form">
+        <input type="text" placeholder="Type your message...">
+        <button type="submit">Send</button>
+    </form>
+	</div>
+
+
+    <div class="chat-info">
+        <h3>Chat Info</h3>
+        <p>Participants:</p>
+        <ul class="participants">
+            <li>User 1 (Online)</li>
+            <li>User 2</li>
+            <li>User 3</li>
+            <!-- Добавьте других участников чата по мере необходимости -->
+        </ul>
+        <button>View All Participants</button>
+        <p>Total Messages: <span id="total-messages">0</span></p>
+    </div>
+</div>
+
+<script src="script/script.js"></script>
+</body>
+</html>
