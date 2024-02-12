@@ -10,6 +10,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.demo.repository.UserRepository;
+import com.example.demo.services.CustomUserDetailsService;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -17,23 +20,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+	private final UserRepository userRepository;
+	
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+        	.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
             	.requestMatchers("/api/user/registration").permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-        			.loginPage("/api/user/login")
-        			.permitAll()
-        			)
+            .formLogin(login -> login
+            		.loginPage("/api/user/login")
+            		.permitAll())
             .logout(LogoutConfigurer::permitAll);
+        
         return http.build();
     }
-
+    
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    CustomUserDetailsService customDetailsService() {
+    	return new CustomUserDetailsService(userRepository);
+    }
+    
+    @Bean
+    PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder(8);
     }
 
