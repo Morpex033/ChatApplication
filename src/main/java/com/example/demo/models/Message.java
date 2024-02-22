@@ -24,8 +24,6 @@ public class Message {
 	private String context;
 	@Column
 	private LocalDateTime time;
-	@Column
-	private Boolean isRead;
 	@ManyToOne
 	@JoinColumn(name = "author")
 	private User user;

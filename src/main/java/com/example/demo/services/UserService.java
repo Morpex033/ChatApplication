@@ -1,5 +1,8 @@
 package com.example.demo.services;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +26,34 @@ public class UserService{
 			return null;
 		}
 		user.setActive(true);
-		//user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.getRoles().add(Role.ROLE_USER);
 		return repository.save(user);
+	}
+	
+	public User findById(String id) {
+		Optional<User> user = repository.findById(Long.parseLong(id));
+		try {
+			return user.get();
+		}catch(NoSuchElementException e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
 	}
 
 	public User findByEmail(String email) {
 		return repository.findByEmail(email);
 	}
 
-	public User update(User user) {
-		return repository.save(user);
+	public User update(String oldUserId, User updatedUser) {
+		Optional<User> oldUser = repository.findById(Long.parseLong(oldUserId));
+		if (oldUser.isPresent() && oldUser.get().getId().equals(updatedUser.getId())) {
+			repository.save(updatedUser);
+			
+			return updatedUser;
+		}
+		
+		return null;
 	}
 
 

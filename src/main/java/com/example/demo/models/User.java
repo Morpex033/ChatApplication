@@ -8,6 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.demo.models.role.Role;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -31,6 +33,11 @@ import lombok.Data;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "_id")
@@ -40,6 +47,7 @@ public class User implements UserDetails{
 	private String username;
 	
 	@Column
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
 	
 	@Email
@@ -54,11 +62,11 @@ public class User implements UserDetails{
     @Enumerated(EnumType.STRING)
     private Collection<Role> roles = new HashSet<>();
 	
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	@JoinColumn
 	private List<Message> messages;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 			name = "user_chat",
 			joinColumns = @JoinColumn(name = "user_id"),
