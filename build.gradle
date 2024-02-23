@@ -35,6 +35,8 @@ dependencies {
 	implementation group: 'org.springframework.security', name: 'spring-security-core', version: '6.2.1'
 	// https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
 	implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.38-rc3'
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '3.2.2'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'

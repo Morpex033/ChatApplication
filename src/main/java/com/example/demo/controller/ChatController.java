@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,8 +37,10 @@ public class ChatController {
 	@PostMapping("/create")
 	public ResponseEntity<String> createChat(@RequestBody Chat chat, 
 			@RequestBody User user){
-		if(chatService.save(chat, user) == null) {
-			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		try{
+			chatService.save(chat, user);
+		}catch(DataAccessException | IllegalStateException exception){
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
@@ -50,9 +53,10 @@ public class ChatController {
 			
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		if(chatService.delete(chat, user) == null) {
-			
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		try{
+			chatService.delete(chat, user);
+		}catch(DataAccessException | IllegalStateException exception){
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -62,8 +66,10 @@ public class ChatController {
 	public ResponseEntity<String> updateChat(@PathVariable("id") String id,
 			@RequestBody Chat chat,
 			@RequestBody User user){
-		if(chatService.update(id, chat, user) == null){
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		try{
+			chatService.update(id, chat, user);
+		}catch(DataAccessException | IllegalStateException exception){
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);

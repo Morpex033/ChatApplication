@@ -29,7 +29,7 @@ implements UserDetailsService, AuthenticationUserDetailsService<PreAuthenticated
     }
 
 	@Override
-	public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws UsernameNotFoundException {
+	public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws IllegalArgumentException {
 		if(authenticationToken.getPrincipal() instanceof Token token) {
 			return new TokenUser(token.subject(), "nopassword", true, true,
 					token.expiresAt().isAfter(Instant.now()), true,
@@ -38,6 +38,6 @@ implements UserDetailsService, AuthenticationUserDetailsService<PreAuthenticated
 					.toList(),token);
 		}
 		
-		throw new UsernameNotFoundException("Principal must be of type Token");
+		throw new IllegalArgumentException("Principal must be of type Token");
 	}
 }

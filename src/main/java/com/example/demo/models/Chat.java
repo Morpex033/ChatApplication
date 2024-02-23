@@ -17,11 +17,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.Collections;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Entity
 @Table
+@Slf4j
 public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +33,7 @@ public class Chat {
 	@Column
 	private String name;
 	@Column
-    private String userRolesJson;
+    private String userRolesJsonString;
 	@ManyToMany(mappedBy = "chats")
 	private List<User> users;
 	@OneToMany
@@ -39,18 +42,18 @@ public class Chat {
 	 public Map<Long, Role> getUserRoles() {
 	        try {
 	            ObjectMapper mapper = new ObjectMapper();
-	            return mapper.readValue(userRolesJson, new TypeReference<Map<Long, Role>>() {});
+	            return mapper.readValue(userRolesJsonString, new TypeReference<Map<Long, Role>>() {});
 	        } catch (JsonProcessingException e) {
-	            e.printStackTrace();
-	            return null;
+	            log.error(e.getMessage(), e);
+	            return Collections.emptyMap();
 	        }
 	    }
 
-	    public void setUserRoles(Map<Long, Role> userRoles) {
+	 public void setUserRoles(Map<Long, Role> userRoles) {
 	        try {
 	            ObjectMapper mapper = new ObjectMapper();
 	            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-	            this.userRolesJson = mapper.writeValueAsString(userRoles);
+	            this.userRolesJsonString = mapper.writeValueAsString(userRoles);
 	        } catch (JsonProcessingException e) {
 	            e.printStackTrace();
 	        }

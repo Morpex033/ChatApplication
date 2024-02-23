@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,8 +27,11 @@ public class UserController {
 	
 	@PostMapping("/registration")
 	public ResponseEntity<String> createUser(@RequestBody User user) {
-		if(userService.save(user) == null) {
-			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		
+		try {
+			userService.save(user);
+		}catch(IllegalStateException | DataAccessException exception) {
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
 		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
@@ -50,7 +54,7 @@ public class UserController {
 			
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		if(auth.getPrincipal().equals(user) || auth.getAuthorities().contains(Role.ROLE_ADMIN)) {
+		if(auth.getAuthorities().contains(Role.ROLE_ADMIN)) {
 		userService.delete(user);
 		return new ResponseEntity<>(HttpStatus.OK);
 		}
@@ -60,8 +64,10 @@ public class UserController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<String> editUser(@PathVariable("id") String id, @RequestBody User user){
-		if(userService.update(id, user) == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+		try {
+			userService.update(id, user);
+		}catch(IllegalStateException | DataAccessException exception) {
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_MODIFIED);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

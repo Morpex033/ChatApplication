@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,8 +29,10 @@ public class MessageController {
 	public ResponseEntity<String> createMessage(@RequestBody Message message,
 			@RequestBody Chat chat,
 			@RequestBody User user){
-		if(messageService.save(chat, user, message) == null){
-			return new ResponseEntity<>("User is not a member of the chat", HttpStatus.FORBIDDEN);
+		try{
+			messageService.save(chat, user, message);
+		}catch(IllegalArgumentException | DataAccessException exception){
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -38,6 +41,7 @@ public class MessageController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Message> getMessage(@PathVariable("id") String id){
 		Message message = messageService.findById(id);
+		
 		if(message == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -50,11 +54,15 @@ public class MessageController {
 			@RequestBody User user,
 			@RequestBody Chat chat){
 		Message message = messageService.findById(id);
+		
 		if(message == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		if(messageService.delete(message, user, chat) == null) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		
+		try{
+			messageService.delete(message, user, chat);
+		}catch(IllegalArgumentException | DataAccessException exception){
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -65,11 +73,15 @@ public class MessageController {
 			@RequestBody User user,
 			@RequestBody Chat chat){
 		Message message = messageService.findById(id);
+		
 		if(message == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		if(messageService.update(message, user, chat) == null) {
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		
+		try{
+			messageService.update(message, user, chat);
+		}catch(IllegalArgumentException | DataAccessException exception) {
+			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);

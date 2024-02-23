@@ -62,11 +62,11 @@ public class User implements UserDetails{
     @Enumerated(EnumType.STRING)
     private Collection<Role> roles = new HashSet<>();
 	
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn
 	private List<Message> messages;
 	
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(
 			name = "user_chat",
 			joinColumns = @JoinColumn(name = "user_id"),
