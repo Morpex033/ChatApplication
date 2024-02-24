@@ -1,5 +1,7 @@
 package com.example.demo.services;
 
+import java.util.UUID;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,12 +20,11 @@ public class UserService{
 	private final UserRepository repository;
 	private final PasswordEncoder passwordEncoder;
 	
-	public void save(User user) {
+	public User save(User user) {
 		if(repository.existsByEmail(user.getEmail())) {
 			log.error("Email alredy taken");
 			throw new IllegalArgumentException();
 		}
-		user.setActive(true);
 		
 		if(user.getPassword() != null) {
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -32,7 +33,31 @@ public class UserService{
 			user.setPassword("");
 		}
 		
-		user.getRoles().add(Role.ROLE_USER);
+		user.setActive(true);
+		user.getRoles().add(Role.ROLE_ADMIN);
+		
+		try {
+			return repository.save(user);
+		}catch(DataAccessException exception) {
+			log.error(exception.getMessage(), exception);
+			throw exception;
+		}
+	}
+	
+	public User findById(String id) {
+		return repository.findById(UUID.fromString(id)).orElse(null);
+	}
+
+	public User findByEmail(String email) {
+		return repository.findByEmail(email);
+	}
+	
+	public void update(String oldUserId, User updatedUser) {
+		User user = repository.findById(UUID.fromString(oldUserId)).orElse(null);
+		copyNotNullDetails(user, updatedUser);
+		if (user == null || updatedUser == null){
+	        throw new IllegalArgumentException("Invalid user id for update");
+	    }
 		
 		try {
 			repository.save(user);
@@ -41,29 +66,20 @@ public class UserService{
 			throw exception;
 		}
 	}
-	
-	public User findById(String id) {
-		return repository.findById(Long.parseLong(id)).orElse(null);
-	}
-
-	public User findByEmail(String email) {
-		return repository.findByEmail(email);
-	}
-
-	public void update(String oldUserId, User updatedUser) {
-		if (updatedUser.getId() == null || !updatedUser.getId().equals(Long.parseLong(oldUserId))) {
-	        throw new IllegalArgumentException("Invalid user id for update");
-	    }
-		
-		try {
-			repository.save(updatedUser);
-		}catch(DataAccessException exception) {
-			log.error(exception.getMessage(), exception);
-			throw exception;
-		}
-	}
 
 	public void delete(User user) {
 		repository.delete(user);
+	}
+	
+	private User copyNotNullDetails(User existingUser, User updatedUser) {
+		
+		if (updatedUser.getUsername() != null && !updatedUser.getUsername().isEmpty()) {
+	        existingUser.setUsername(updatedUser.getUsername());
+	    }
+	    if (updatedUser.getEmail() != null && !updatedUser.getEmail().isEmpty()) {
+	        existingUser.setEmail(updatedUser.getEmail());
+	    }
+	    
+	    return existingUser;
 	}
 }

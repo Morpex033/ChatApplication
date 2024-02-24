@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.models.Chat;
+import com.example.demo.controller.dto.MessageRequest;
 import com.example.demo.models.Message;
-import com.example.demo.models.User;
 import com.example.demo.services.MessageService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,16 +25,15 @@ public class MessageController {
 	private final MessageService messageService;
 	
 	@PostMapping
-	public ResponseEntity<String> createMessage(@RequestBody Message message,
-			@RequestBody Chat chat,
-			@RequestBody User user){
+	public ResponseEntity<String> createMessage(@RequestBody MessageRequest request){
+		Message message;
 		try{
-			messageService.save(chat, user, message);
+			message = messageService.save(request.getChatId(), request.getUserId(), request.getMessage());
 		}catch(IllegalArgumentException | DataAccessException exception){
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
 		
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(message.getId().toString(), HttpStatus.OK);
 	}
 	
 	@GetMapping("/{id}")
@@ -49,18 +47,10 @@ public class MessageController {
 		return ResponseEntity.ok(message);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteChat(@PathVariable("id") String id,
-			@RequestBody User user,
-			@RequestBody Chat chat){
-		Message message = messageService.findById(id);
-		
-		if(message == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		
+	@DeleteMapping
+	public ResponseEntity<String> deleteChat(@RequestBody MessageRequest request){
 		try{
-			messageService.delete(message, user, chat);
+			messageService.delete(request.getMessage(), request.getUserId(), request.getChatId());
 		}catch(IllegalArgumentException | DataAccessException exception){
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
@@ -68,18 +58,10 @@ public class MessageController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
-	@PutMapping("/{id}")
-	public ResponseEntity<String> updateChat(@PathVariable("id") String id,
-			@RequestBody User user,
-			@RequestBody Chat chat){
-		Message message = messageService.findById(id);
-		
-		if(message == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		
+	@PutMapping
+	public ResponseEntity<String> updateChat(@RequestBody MessageRequest request){
 		try{
-			messageService.update(message, user, chat);
+			messageService.update(request.getMessage(), request.getUserId(), request.getChatId());
 		}catch(IllegalArgumentException | DataAccessException exception) {
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}

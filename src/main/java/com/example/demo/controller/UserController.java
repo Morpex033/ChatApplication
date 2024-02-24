@@ -26,14 +26,14 @@ public class UserController {
 	private final UserService userService;
 	
 	@PostMapping("/registration")
-	public ResponseEntity<String> createUser(@RequestBody User user) {
-		
+	public ResponseEntity<String> createUser(@RequestBody User newUser) {
+		User user;
 		try {
-			userService.save(user);
+			user = userService.save(newUser);
 		}catch(IllegalStateException | DataAccessException exception) {
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
 		}
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<>(user.getId().toString(),HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/{id}")

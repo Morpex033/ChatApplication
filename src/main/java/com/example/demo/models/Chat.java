@@ -1,69 +1,45 @@
 package com.example.demo.models;
 
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import com.example.demo.models.role.Role;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.Collections;
+import jakarta.persistence.Transient;
+
+import java.util.ArrayList;
+
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Entity
 @Table
-@Slf4j
 public class Chat {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column
-	private Long id;
+	private UUID id;
 	@Column
 	private String name;
-	@Column
-    private String userRolesJsonString;
-	@ManyToMany(mappedBy = "chats")
-	private List<User> users;
-	@OneToMany
-	private List<Message> messages;
-	
-	 public Map<Long, Role> getUserRoles() {
-	        try {
-	            ObjectMapper mapper = new ObjectMapper();
-	            return mapper.readValue(userRolesJsonString, new TypeReference<Map<Long, Role>>() {});
-	        } catch (JsonProcessingException e) {
-	            log.error(e.getMessage(), e);
-	            return Collections.emptyMap();
-	        }
-	    }
+	@OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private List<UserRoleChat> userRole = new ArrayList<>();
+	@ManyToMany
+	@JoinTable(
+		    name = "chat_user", 
+		    joinColumns = @JoinColumn(name = "chat_id"), 
+		    inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private List<User> users = new ArrayList<>();
+	@Transient
+	private List<Message> messages = new ArrayList<>();
 
-	 public void setUserRoles(Map<Long, Role> userRoles) {
-	        try {
-	            ObjectMapper mapper = new ObjectMapper();
-	            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-	            this.userRolesJsonString = mapper.writeValueAsString(userRoles);
-	        } catch (JsonProcessingException e) {
-	            e.printStackTrace();
-	        }
-	    }
-	
-	public Role getUserRole(Long userId) {
-        return getUserRoles().getOrDefault(userId, null);
-    }
-    
-    public void setUserRole(Long userId, Role role) {
-    	getUserRoles().put(userId, role);
-    }
 }

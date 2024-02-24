@@ -1,16 +1,20 @@
 package com.example.demo.models;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.demo.models.role.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -24,14 +28,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "users")
+@NoArgsConstructor(force = true)
 public class User implements UserDetails{
 	/**
 	 * 
@@ -39,9 +45,9 @@ public class User implements UserDetails{
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "_id")
-	private Long id;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column
+	private UUID id;
 	
 	@Column
 	private String username;
@@ -62,16 +68,13 @@ public class User implements UserDetails{
     @Enumerated(EnumType.STRING)
     private Collection<Role> roles = new HashSet<>();
 	
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn
-	private List<Message> messages;
+	@Transient
+	@JsonIgnore
+	private List<Message> messages = new ArrayList<>();
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-			name = "user_chat",
-			joinColumns = @JoinColumn(name = "user_id"),
-			inverseJoinColumns = @JoinColumn(name = "chat_id"))
-	private List<Chat> chats;
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JsonIgnore
+	private List<Chat> chats = new ArrayList<>();
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -80,7 +83,7 @@ public class User implements UserDetails{
 	
 	@Override
 	public String getUsername(){
-		return email;
+		return this.username;
 	}
 
 	@Override

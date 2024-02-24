@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,9 @@ import com.example.demo.models.Chat;
 import com.example.demo.models.Message;
 import com.example.demo.models.User;
 import com.example.demo.models.role.Role;
+import com.example.demo.repository.ChatRepository;
 import com.example.demo.repository.MessageRepository;
+import com.example.demo.repository.UserRepository;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -18,16 +21,20 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class MessageService{
-	private final MessageRepository repository;
+	private final MessageRepository messageRepository;
+	private final UserRepository userRepository;
+	private final ChatRepository chatRepository;
 	
-	public void save(Chat chat, User user, Message message) {
+	public Message save(String chatId, String userId, Message message) {
+		Chat chat = chatRepository.findById(UUID.fromString(chatId)).orElse(null);
+		User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
 		if(chat.getUsers().contains(user)) {
 			message.setUser(user);
 			message.setChat(chat);
 			message.setTime(LocalDateTime.now());
 			
 			try {
-				repository.save(message);
+				return messageRepository.save(message);
 			}catch(DataAccessException exception) {
 				log.error(exception.getMessage(), exception);
 				throw exception;
@@ -39,14 +46,16 @@ public class MessageService{
 	}
 
 	public Message findById(String id) {
-		return repository.findById(Long.parseLong(id)).orElse(null);
+		return messageRepository.findById(Long.parseLong(id)).orElse(null);
 	}
 
-	public void update(Message message, User user, Chat chat){
+	public void update(Message message, String userId, String chatId){
+		Chat chat = chatRepository.findById(UUID.fromString(chatId)).orElse(null);
+		User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
 		if(message.getUser().equals(user) && 
 				chat.getMessages().contains(message)) {
 			try {
-				repository.save(message);
+				messageRepository.save(message);
 		
 			}catch(DataAccessException exception) {
 				log.error(exception.getMessage(), exception);
@@ -57,11 +66,15 @@ public class MessageService{
 		}
 	}
 
-	public void delete(Message message, User user, Chat chat) {
-		if(chat.getUserRole(user.getId()).equals(Role.ROLE_ADMIN) ||
-				chat.getUserRole(user.getId()).equals(Role.ROLE_MODERATOR)) {
+	public void delete(Message message, String userId, String chatId) {
+		Chat chat = chatRepository.findById(UUID.fromString(chatId)).orElse(null);
+		if(chat.getUsers().stream().anyMatch(temp -> 
+			temp.getId().equals(UUID.fromString(userId)) &&(
+					temp.getAuthorities().contains(Role.ROLE_ADMIN) ||
+					temp.getAuthorities().contains(Role.ROLE_MODERATOR)
+				))) {
 			try {
-				repository.delete(message);
+				messageRepository.delete(message);
 		
 			}catch(DataAccessException exception) {
 				log.error(exception.getMessage(), exception);

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.controller.dto.ChatRequest;
 import com.example.demo.models.Chat;
-import com.example.demo.models.User;
 import com.example.demo.services.ChatService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,27 +34,22 @@ public class ChatController {
 		return ResponseEntity.ok(chat);
 	}
 	
-	@PostMapping("/create")
-	public ResponseEntity<String> createChat(@RequestBody Chat chat, 
-			@RequestBody User user){
+	@PostMapping
+	public ResponseEntity<String> createChat(@RequestBody ChatRequest request) {
+		Chat chat;
 		try{
-			chatService.save(chat, user);
+			chat = chatService.save(request.getChat(), request.getUserId());
+			chatService.setAdminUser(chat, request.getUserId());
 		}catch(DataAccessException | IllegalStateException exception){
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
 		}
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<>(chat.getId().toString(),HttpStatus.CREATED);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteChat(@PathVariable("id") String id,
-			@RequestBody User user){
-		Chat chat = chatService.findById(id);
-		if(chat == null) {
-			
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	@DeleteMapping
+	public ResponseEntity<String> deleteChat(@RequestBody ChatRequest request) {
 		try{
-			chatService.delete(chat, user);
+			chatService.delete(request.getChat(), request.getUserId());
 		}catch(DataAccessException | IllegalStateException exception){
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}
@@ -62,12 +57,10 @@ public class ChatController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
-	@PutMapping("/{id}")
-	public ResponseEntity<String> updateChat(@PathVariable("id") String id,
-			@RequestBody Chat chat,
-			@RequestBody User user){
+	@PutMapping
+	public ResponseEntity<String> updateChat(@RequestBody ChatRequest request){
 		try{
-			chatService.update(id, chat, user);
+			chatService.update(request.getChat(), request.getUserId());
 		}catch(DataAccessException | IllegalStateException exception){
 			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
 		}

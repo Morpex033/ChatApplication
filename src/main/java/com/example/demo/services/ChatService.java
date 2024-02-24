@@ -1,12 +1,16 @@
 package com.example.demo.services;
 
+import java.util.UUID;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.Chat;
-import com.example.demo.models.User;
+import com.example.demo.models.UserRoleChat;
 import com.example.demo.models.role.Role;
 import com.example.demo.repository.ChatRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.UserRoleChatRepository;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -15,33 +19,35 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ChatService{
-	private final ChatRepository repository;
+	private final ChatRepository chatRepository;
+	private final UserRepository userRepository;
+	private final UserRoleChatRepository userRoleChatRepository;
 
-	public void save(Chat chat, User user) {
-		if(repository.existsById(chat.getId())) {
+	public Chat save(Chat chat, String userId) {
+		if(userRepository.existsById(UUID.fromString(userId))) {
+			chat.getUsers().add(userRepository.findById(UUID.fromString(userId)).orElse(null));
+			try {
+				return chatRepository.save(chat);
+			}catch(DataAccessException exception) {
+				log.error(exception.getMessage(), exception);
+				throw exception;
+			}
+		}else {
 			throw new IllegalStateException("User not exists");
-		}
-		chat.setUserRole(user.getId(), Role.ROLE_ADMIN);
-		chat.getUsers().add(user);
-		try {
-			repository.save(chat);
-		}catch(DataAccessException exception) {
-			log.error(exception.getMessage(), exception);
-			throw exception;
 		}
 	}
 
 	public Chat findById(String id) {
-		return repository.findById(Long.parseLong(id)).orElse(null);
+		return chatRepository.findById(UUID.fromString(id)).orElse(null);
 	}
 
-	public void update(String id, Chat updatedChat, User user) {
-		Chat chat = repository.findById(Long.parseLong(id)).orElse(null);
-		if(chat != null) { 
-			if((chat.getUserRole(user.getId()).equals(Role.ROLE_ADMIN) || 
-					chat.getUserRole(user.getId()).equals(Role.ROLE_MODERATOR))) {
+	public void update(Chat chat, String userId) {
+		if(this.chatRepository.existsById(chat.getId())) { 
+			if(chat.getUserRole().stream()
+					.filter(user -> user.getUserId().equals(UUID.fromString(userId)))
+					.anyMatch(role -> role.getRole().equals(Role.ROLE_ADMIN) || role.getRole().equals(Role.ROLE_MODERATOR))) {
 				try {
-					repository.save(updatedChat);
+					chatRepository.save(chat);
 				}catch(DataAccessException exception) {
 					log.error(exception.getMessage(), exception);
 					throw exception;
@@ -54,10 +60,13 @@ public class ChatService{
 		}
 	}
 
-	public void delete(Chat chat, User user) {
-		if(chat.getUserRole(user.getId()).equals(Role.ROLE_ADMIN)) {
+	public void delete(Chat deletedChat, String userId) {
+		Chat chat = chatRepository.findById(deletedChat.getId()).orElse(null);
+		if(chat.getUserRole().stream()
+				.filter(user -> user.getUserId().equals(UUID.fromString(userId)))
+				.anyMatch(role -> role.getRole().equals(Role.ROLE_ADMIN))) {
 			try {
-				repository.delete(chat);
+				chatRepository.delete(chat);
 			}catch(DataAccessException exception) {
 				log.error(exception.getMessage(), exception);
 				throw exception;
@@ -66,5 +75,20 @@ public class ChatService{
 			throw new IllegalStateException("User must be admin role");
 		}
 	}
-
+	
+	public void setAdminUser(Chat chat, String userId) {
+		UserRoleChat userRole = new UserRoleChat();
+		userRole.setUserId(UUID.fromString(userId));
+		userRole.setChat(chat);
+		userRole.setRole(Role.ROLE_ADMIN);
+		
+		chat.getUserRole().add(userRole);
+		try {
+		chatRepository.save(chat);
+		}catch(DataAccessException exception) {
+			log.error(exception.getMessage(), exception);
+			throw exception;
+		}
+	}
+		
 }
