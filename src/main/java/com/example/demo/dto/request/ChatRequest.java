@@ -1,4 +1,4 @@
-package com.example.demo.controller.dto;
+package com.example.demo.dto.request;
 
 import com.example.demo.models.Chat;
 
@@ -8,9 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ChatRequest {
-	
-	private String userId;
-	
+
 	private Chat chat;
 
 }

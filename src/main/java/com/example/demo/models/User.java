@@ -26,10 +26,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,7 +36,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(force = true)
-public class User implements UserDetails{
+public class User implements UserDetails {
 	/**
 	 * 
 	 */
@@ -48,30 +46,26 @@ public class User implements UserDetails{
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column
 	private UUID id;
-	
+
 	@Column
 	private String username;
-	
+
 	@Column
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
-	
+
 	@Email
 	@Column(unique = true)
 	private String email;
-	
+
 	@Column
 	private Boolean active;
-	
+
 	@ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    private Collection<Role> roles = new HashSet<>();
-	
-	@Transient
-	@JsonIgnore
-	private List<Message> messages = new ArrayList<>();
-	
+	@CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
+	@Enumerated(EnumType.STRING)
+	private Collection<Role> roles = new HashSet<>();
+
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonIgnore
 	private List<Chat> chats = new ArrayList<>();
@@ -80,9 +74,9 @@ public class User implements UserDetails{
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles;
 	}
-	
+
 	@Override
-	public String getUsername(){
+	public String getUsername() {
 		return this.username;
 	}
 

@@ -16,24 +16,24 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class TokenCookieAuthenticationStrategy implements SessionAuthenticationStrategy{
+public class TokenCookieAuthenticationStrategy implements SessionAuthenticationStrategy {
 
 	private TokenCookieService tokenCookieService;
 
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
-		if(authentication instanceof UsernamePasswordAuthenticationToken) {
+		if (authentication instanceof UsernamePasswordAuthenticationToken) {
 			var token = this.tokenCookieService.token(authentication);
 			var tokenString = this.tokenCookieService.serealizer(token);
-			
+
 			var cookie = new Cookie("__Host-auth-token", tokenString);
 			cookie.setPath("/");
 			cookie.setDomain(null);
 			cookie.setSecure(true);
 			cookie.setHttpOnly(true);
 			cookie.setMaxAge((int) ChronoUnit.SECONDS.between(Instant.now(), token.expiresAt()));
-			
+
 			response.addCookie(cookie);
 		}
 	}

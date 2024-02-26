@@ -15,7 +15,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 import java.util.ArrayList;
 
@@ -34,12 +33,7 @@ public class Chat {
 	@OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<UserRoleChat> userRole = new ArrayList<>();
 	@ManyToMany
-	@JoinTable(
-		    name = "chat_user", 
-		    joinColumns = @JoinColumn(name = "chat_id"), 
-		    inverseJoinColumns = @JoinColumn(name = "user_id"))
+	@JoinTable(name = "chat_user", joinColumns = @JoinColumn(name = "chat_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
 	private List<User> users = new ArrayList<>();
-	@Transient
-	private List<Message> messages = new ArrayList<>();
 
 }

@@ -17,36 +17,32 @@ import com.example.demo.services.TokenCookieService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class TokenCookieAuthenticationConfigurer 
-	extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
-	
+public class TokenCookieAuthenticationConfigurer
+		extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
+
 	private final TokenCookieService tokenCookieService;
-	
+
 	private UserRepository userRepository;
 
 	@Override
 	public void init(HttpSecurity builder) throws Exception {
-		builder.logout(logout -> logout.addLogoutHandler(
-				new CookieClearingLogoutHandler("__Host-auth-token")));
+		builder.logout(logout -> logout.addLogoutHandler(new CookieClearingLogoutHandler("__Host-auth-token")));
 	}
 
 	@Override
 	public void configure(HttpSecurity builder) throws Exception {
-		var cookieAuthenticationFilter = new AuthenticationFilter(
-				builder.getSharedObject(AuthenticationManager.class),
+		var cookieAuthenticationFilter = new AuthenticationFilter(builder.getSharedObject(AuthenticationManager.class),
 				new TokenCookieAuthenticationConverter(this.tokenCookieService));
-		cookieAuthenticationFilter.setSuccessHandler((request, response, authentication) -> {});
-		cookieAuthenticationFilter.setFailureHandler(
-				new AuthenticationEntryPointFailureHandler(
-						new Http403ForbiddenEntryPoint()));
-		
+		cookieAuthenticationFilter.setSuccessHandler((request, response, authentication) -> {
+		});
+		cookieAuthenticationFilter
+				.setFailureHandler(new AuthenticationEntryPointFailureHandler(new Http403ForbiddenEntryPoint()));
+
 		var authenticationProvider = new PreAuthenticatedAuthenticationProvider();
-		authenticationProvider.setPreAuthenticatedUserDetailsService(
-				new CustomUserDetailsService(this.userRepository));
-		
-		builder
-		.addFilterAfter(cookieAuthenticationFilter, CsrfFilter.class)
-		.authenticationProvider(authenticationProvider);
+		authenticationProvider.setPreAuthenticatedUserDetailsService(new CustomUserDetailsService(this.userRepository));
+
+		builder.addFilterAfter(cookieAuthenticationFilter, CsrfFilter.class)
+				.authenticationProvider(authenticationProvider);
 	}
 
 }

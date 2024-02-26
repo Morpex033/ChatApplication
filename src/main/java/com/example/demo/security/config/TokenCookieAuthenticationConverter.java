@@ -16,17 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
-public class TokenCookieAuthenticationConverter implements AuthenticationConverter{
-	
+public class TokenCookieAuthenticationConverter implements AuthenticationConverter {
+
 	private TokenCookieService tokenCookieService;
 
 	@Override
 	public Authentication convert(HttpServletRequest request) {
-		if(request.getCookies() != null) {
-			return Stream.of(request.getCookies())
-					.filter(cookie -> cookie.getName().equals("__Host-auth-token"))
-					.findFirst()
-					.map(cookie -> {
+		if (request.getCookies() != null) {
+			return Stream.of(request.getCookies()).filter(cookie -> cookie.getName().equals("__Host-auth-token"))
+					.findFirst().map(cookie -> {
 						Token token = null;
 						try {
 							token = this.tokenCookieService.deserialize(cookie.getValue());
@@ -34,10 +32,9 @@ public class TokenCookieAuthenticationConverter implements AuthenticationConvert
 							log.error(e.getMessage(), e);
 						}
 						return new PreAuthenticatedAuthenticationToken(token, cookie.getValue());
-					})
-					.orElse(null);
+					}).orElse(null);
 		}
-		
+
 		return null;
 	}
 

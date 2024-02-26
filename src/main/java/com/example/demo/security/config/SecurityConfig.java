@@ -49,50 +49,41 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 public class SecurityConfig {
 	private final CustomUserDetailsService userDetailsService;
-	
+
 	@Bean
 	TokenCookieAuthenticationStrategy tokenCookieAuthenticationStrategy(
-			@Value("${COOKIE_TOKEN_KEY}") String cookieTokenKey
-			) throws ParseException, JOSEException {
+			@Value("${COOKIE_TOKEN_KEY}") String cookieTokenKey) throws ParseException, JOSEException {
 		return new TokenCookieAuthenticationStrategy(
-				new TokenCookieService(
-						new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)),
+				new TokenCookieService(new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)),
 						new DirectDecrypter(OctetSequenceKey.parse(cookieTokenKey))));
 	}
-	
+
 	@Bean
 	TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer(
-			@Value("${COOKIE_TOKEN_KEY}") String cookieTokenKey
-			) throws ParseException, JOSEException {
+			@Value("${COOKIE_TOKEN_KEY}") String cookieTokenKey) throws ParseException, JOSEException {
 		return new TokenCookieAuthenticationConfigurer(
-				new TokenCookieService(
-						new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)),
+				new TokenCookieService(new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)),
 						new DirectDecrypter(OctetSequenceKey.parse(cookieTokenKey))));
 	}
-	
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http,
-    		TokenCookieAuthenticationStrategy tokenCookieAuthenticationStrategy,
-    		TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer) throws Exception {
-        http
-        .httpBasic(Customizer.withDefaults())
-        .with(tokenCookieAuthenticationConfigurer, Customizer.withDefaults())
-        .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authorize -> authorize
-            	.requestMatchers("/api/user/registration", "/error").permitAll()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sessionManagment -> sessionManagment
-            		.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            		.sessionAuthenticationStrategy(tokenCookieAuthenticationStrategy))
-            .logout(LogoutConfigurer::permitAll);
-        
-        return http.build();
-    }
-    
-    @Bean
-	AuthenticationManager authenticationManager(
-			UserDetailsService userDetailsService,
+
+	@Bean
+	SecurityFilterChain filterChain(HttpSecurity http,
+			TokenCookieAuthenticationStrategy tokenCookieAuthenticationStrategy,
+			TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer) throws Exception {
+		http.httpBasic(Customizer.withDefaults()).with(tokenCookieAuthenticationConfigurer, Customizer.withDefaults())
+				.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/user/registration", "/error")
+						.permitAll().anyRequest().authenticated())
+				.sessionManagement(
+						sessionManagment -> sessionManagment.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+								.sessionAuthenticationStrategy(tokenCookieAuthenticationStrategy))
+				.logout(LogoutConfigurer::permitAll);
+
+		return http.build();
+	}
+
+	@Bean
+	AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
 			PasswordEncoder passwordEncoder) {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
 		authenticationProvider.setUserDetailsService(this.userDetailsService);
@@ -100,94 +91,95 @@ public class SecurityConfig {
 
 		return new ProviderManager(authenticationProvider);
 	}
-    
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder(8);
-    }
-    
-    //TODO Удалить 
-    //Для дебаг мода
-    @Bean
-    static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
-        return registry -> registry.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME).setBeanClassName(CompositeFilterChainProxy.class.getName());
-    }
 
-static class CompositeFilterChainProxy extends FilterChainProxy {
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(8);
+	}
 
-        private final Filter doFilterDelegate;
+	// TODO Удалить
+	// Для дебаг мода
+	@Bean
+	static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
+		return registry -> registry.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
+				.setBeanClassName(CompositeFilterChainProxy.class.getName());
+	}
 
-        private final FilterChainProxy springSecurityFilterChain;
+	static class CompositeFilterChainProxy extends FilterChainProxy {
 
-        CompositeFilterChainProxy(List<? extends Filter> filters) {
-            this.doFilterDelegate = createDoFilterDelegate(filters);
-            this.springSecurityFilterChain = findFilterChainProxy(filters);
-        }
+		private final Filter doFilterDelegate;
 
-        @Override
-        public void afterPropertiesSet() {
-            this.springSecurityFilterChain.afterPropertiesSet();
-        }
+		private final FilterChainProxy springSecurityFilterChain;
 
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-                throws IOException, ServletException {
-            this.doFilterDelegate.doFilter(request, response, chain);
-        }
+		CompositeFilterChainProxy(List<? extends Filter> filters) {
+			this.doFilterDelegate = createDoFilterDelegate(filters);
+			this.springSecurityFilterChain = findFilterChainProxy(filters);
+		}
 
-        @Override
-        public List<Filter> getFilters(String url) {
-            return this.springSecurityFilterChain.getFilters(url);
-        }
+		@Override
+		public void afterPropertiesSet() {
+			this.springSecurityFilterChain.afterPropertiesSet();
+		}
 
-        @Override
-        public List<SecurityFilterChain> getFilterChains() {
-            return this.springSecurityFilterChain.getFilterChains();
-        }
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			this.doFilterDelegate.doFilter(request, response, chain);
+		}
 
-        @Override
-        public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
-            this.springSecurityFilterChain.setSecurityContextHolderStrategy(securityContextHolderStrategy);
-        }
+		@Override
+		public List<Filter> getFilters(String url) {
+			return this.springSecurityFilterChain.getFilters(url);
+		}
 
-        @Override
-        public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
-            this.springSecurityFilterChain.setFilterChainValidator(filterChainValidator);
-        }
+		@Override
+		public List<SecurityFilterChain> getFilterChains() {
+			return this.springSecurityFilterChain.getFilterChains();
+		}
 
-        @Override
-        public void setFilterChainDecorator(FilterChainDecorator filterChainDecorator) {
-            this.springSecurityFilterChain.setFilterChainDecorator(filterChainDecorator);
-        }
+		@Override
+		public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.springSecurityFilterChain.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		}
 
-        @Override
-        public void setFirewall(HttpFirewall firewall) {
-            this.springSecurityFilterChain.setFirewall(firewall);
-        }
+		@Override
+		public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
+			this.springSecurityFilterChain.setFilterChainValidator(filterChainValidator);
+		}
 
-        @Override
-        public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
-            this.springSecurityFilterChain.setRequestRejectedHandler(requestRejectedHandler);
-        }
+		@Override
+		public void setFilterChainDecorator(FilterChainDecorator filterChainDecorator) {
+			this.springSecurityFilterChain.setFilterChainDecorator(filterChainDecorator);
+		}
 
-        private static Filter createDoFilterDelegate(List<? extends Filter> filters) {
-            CompositeFilter delegate = new CompositeFilter();
-            delegate.setFilters(filters);
-            return delegate;
-        }
+		@Override
+		public void setFirewall(HttpFirewall firewall) {
+			this.springSecurityFilterChain.setFirewall(firewall);
+		}
 
-        private static FilterChainProxy findFilterChainProxy(List<? extends Filter> filters) {
-            for (Filter filter : filters) {
-                if (filter instanceof FilterChainProxy fcp ) {
-                    return fcp;
-                }
-                if (filter instanceof DebugFilter debugFilter ) {
-                    return debugFilter.getFilterChainProxy();
-                }
-            }
-            throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
-        }
+		@Override
+		public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+			this.springSecurityFilterChain.setRequestRejectedHandler(requestRejectedHandler);
+		}
 
-    }
+		private static Filter createDoFilterDelegate(List<? extends Filter> filters) {
+			CompositeFilter delegate = new CompositeFilter();
+			delegate.setFilters(filters);
+			return delegate;
+		}
+
+		private static FilterChainProxy findFilterChainProxy(List<? extends Filter> filters) {
+			for (Filter filter : filters) {
+				if (filter instanceof FilterChainProxy fcp) {
+					return fcp;
+				}
+				if (filter instanceof DebugFilter debugFilter) {
+					return debugFilter.getFilterChainProxy();
+				}
+			}
+			throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
+		}
+
+	}
 
 }
