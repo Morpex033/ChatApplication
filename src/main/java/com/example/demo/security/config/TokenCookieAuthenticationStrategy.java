@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import com.example.demo.services.TokenCookieService;
+import com.example.demo.service.TokenCookieService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ public class TokenCookieAuthenticationStrategy implements SessionAuthenticationS
 			HttpServletResponse response) throws SessionAuthenticationException {
 		if (authentication instanceof UsernamePasswordAuthenticationToken) {
 			var token = this.tokenCookieService.token(authentication);
-			var tokenString = this.tokenCookieService.serealizer(token);
+			var tokenString = this.tokenCookieService.serializer(token);
 
 			var cookie = new Cookie("__Host-auth-token", tokenString);
 			cookie.setPath("/");

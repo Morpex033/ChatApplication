@@ -11,8 +11,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.csrf.CsrfFilter;
 
 import com.example.demo.repository.UserRepository;
-import com.example.demo.services.CustomUserDetailsService;
-import com.example.demo.services.TokenCookieService;
+import com.example.demo.service.CustomUserDetailsService;
+import com.example.demo.service.TokenCookieService;
 
 import lombok.RequiredArgsConstructor;
 

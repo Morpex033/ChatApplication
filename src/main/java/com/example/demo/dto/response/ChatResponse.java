@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ChatDto {
+public class ChatResponse {
 	private UUID id;
 	private String name;
 	private List<User> users = new ArrayList<>();

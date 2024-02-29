@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.response.ExceptionResponse;
+import com.example.demo.dto.response.UUIDResponse;
+import com.example.demo.dto.response.UserResponse;
 import com.example.demo.models.User;
 import com.example.demo.models.role.Role;
-import com.example.demo.services.UserService;
+import com.example.demo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,40 +31,39 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/registration")
-	public ResponseEntity<String> createUser(@RequestBody User newUser) {
+	public ResponseEntity<?> createUser(@RequestBody User newUser) {
 		User user;
 		try {
 			user = userService.save(newUser);
-		} catch (IllegalStateException | DataAccessException exception) {
+		} catch (IllegalStateException | DataAccessException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.CONFLICT);
 		}
-		return new ResponseEntity<>(user.getId().toString(), HttpStatus.CREATED);
+		return new ResponseEntity<>(new UUIDResponse(user.getId()), HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<User> getUser(@PathVariable("id") String id) {
+	public ResponseEntity<?> getUser(@PathVariable("id") String id) {
 		User user;
 		try {
 			user = userService.findById(id);
-		}
-		catch (DataAccessException exception){
+		} catch (IllegalStateException | DataAccessException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<>(user, HttpStatus.OK);
+		return new ResponseEntity<>(new UserResponse(user.getUsername(), user.getEmail(), user.getRoles()),
+				HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteUser(@PathVariable("id") String id, Authentication auth) {
+	public ResponseEntity<?> deleteUser(@PathVariable("id") String id, Authentication auth) {
 		User user;
 		try {
 			user = userService.findById(id);
-		}
-		catch (DataAccessException exception){
+		} catch (IllegalStateException | DataAccessException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.NOT_FOUND);
 		}
 		if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) {
 			userService.delete(user);
@@ -72,12 +74,12 @@ public class UserController {
 	}
 
 	@PutMapping
-	public ResponseEntity<String> editUser(@RequestBody User user, Authentication auth) {
+	public ResponseEntity<?> editUser(@RequestBody User user, Authentication auth) {
 		try {
 			userService.update(user, auth);
-		} catch (IllegalStateException | DataAccessException exception) {
+		} catch (IllegalStateException | DataAccessException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

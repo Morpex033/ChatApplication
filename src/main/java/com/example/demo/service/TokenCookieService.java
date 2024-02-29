@@ -1,4 +1,4 @@
-package com.example.demo.services;
+package com.example.demo.service;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
+import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Data
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,7 +48,7 @@ public class TokenCookieService {
 				now, now.plus(tokenDuration));
 	}
 
-	public String serealizer(Token token){
+	public String serializer(Token token){
 		var jweHeader = new JWEHeader.Builder(jweAlgorithm, encryptionMethod)
 				.keyID(token.id().toString())
 				.build();

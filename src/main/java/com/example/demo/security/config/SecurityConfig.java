@@ -29,8 +29,8 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.web.filter.CompositeFilter;
 
-import com.example.demo.services.CustomUserDetailsService;
-import com.example.demo.services.TokenCookieService;
+import com.example.demo.service.CustomUserDetailsService;
+import com.example.demo.service.TokenCookieService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;

@@ -12,11 +12,6 @@ import lombok.Setter;
 @Getter
 public class TokenUser extends User {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private final Token token;
 
 	public TokenUser(String username, String password, Collection<? extends GrantedAuthority> authorities,

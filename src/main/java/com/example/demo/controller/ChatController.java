@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.request.ChatRequest;
 import com.example.demo.dto.request.ChatRoleRequest;
 import com.example.demo.dto.request.ChatUserRequest;
-import com.example.demo.dto.response.ChatDto;
+import com.example.demo.dto.response.ChatResponse;
+import com.example.demo.dto.response.ExceptionResponse;
+import com.example.demo.dto.response.UUIDResponse;
 import com.example.demo.models.Chat;
-import com.example.demo.services.ChatService;
+import com.example.demo.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,83 +33,83 @@ public class ChatController {
 	private final ChatService chatService;
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ChatDto> getChat(@PathVariable("id") String id) {
-		ChatDto chat;
+	public ResponseEntity<?> getChat(@PathVariable("id") String id) {
+		ChatResponse chat;
 		try {
 			chat = chatService.findById(id);
 		}catch(IllegalStateException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.NOT_FOUND);
 		}
 		return ResponseEntity.ok(chat);
 	}
 
 	@PostMapping
-	public ResponseEntity<String> createChat(@RequestBody ChatRequest request, Authentication auth) {
+	public ResponseEntity<?> createChat(@RequestBody ChatRequest request, Authentication auth) {
 		Chat chat;
 		try {
 			chat = chatService.save(request, auth);
 			chatService.setAdminUser(chat, auth);
-		} catch (DataAccessException | IllegalStateException exception) {
+		} catch (DataAccessException | IllegalStateException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.CONFLICT);
 		}
-		return new ResponseEntity<>(chat.getId().toString(), HttpStatus.CREATED);
+		return new ResponseEntity<>(new UUIDResponse(chat.getId()), HttpStatus.OK);
 	}
 
 	@DeleteMapping
-	public ResponseEntity<String> deleteChat(@RequestBody ChatRequest request, Authentication auth) {
+	public ResponseEntity<?> deleteChat(@RequestBody ChatRequest request, Authentication auth) {
 		try {
 			chatService.delete(request, auth);
-		} catch (DataAccessException | IllegalStateException exception) {
+		} catch (DataAccessException | IllegalStateException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
 		}
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping("/edit")
-	public ResponseEntity<String> updateChat(@RequestBody ChatRequest request, Authentication auth) {
+	public ResponseEntity<?> updateChat(@RequestBody ChatRequest request, Authentication auth) {
 		try {
 			chatService.update(request, auth);
-		} catch (DataAccessException | IllegalStateException exception) {
+		} catch (DataAccessException | IllegalStateException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
 		}
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping("/role")
-	public ResponseEntity<String> addRoleToUser(@RequestBody ChatRoleRequest request, Authentication auth) {
+	public ResponseEntity<?> addRoleToUser(@RequestBody ChatRoleRequest request, Authentication auth) {
 		try {
 			chatService.setRoleToUser(request, auth);
-		} catch (DataAccessException | IllegalStateException exception) {
+		} catch (DataAccessException | IllegalStateException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping
-	public ResponseEntity<String> addUser(@RequestBody ChatRoleRequest request, Authentication auth) {
+	public ResponseEntity<?> addUser(@RequestBody ChatUserRequest request, Authentication auth) {
 		try {
 			chatService.addUser(request, auth);
-		} catch (DataAccessException | IllegalStateException exception) {
+		} catch (DataAccessException | IllegalStateException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/user")
-	public ResponseEntity<String> removeUser(@RequestBody ChatUserRequest request, Authentication auth){
+	public ResponseEntity<?> removeUser(@RequestBody ChatUserRequest request, Authentication auth){
 		try {
 			chatService.removeUser(request, auth);
-		} catch (DataAccessException | IllegalStateException exception) {
+		} catch (DataAccessException | IllegalStateException | NullPointerException exception) {
 			log.error(exception.getMessage(), exception);
-			return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(new ExceptionResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

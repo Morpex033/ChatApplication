@@ -37,11 +37,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 @NoArgsConstructor(force = true)
 public class User implements UserDetails {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column

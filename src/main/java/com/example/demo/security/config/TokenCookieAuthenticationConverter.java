@@ -7,7 +7,7 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import com.example.demo.models.Token;
-import com.example.demo.services.TokenCookieService;
+import com.example.demo.service.TokenCookieService;
 import com.nimbusds.jose.JOSEException;
 
 import jakarta.servlet.http.HttpServletRequest;
