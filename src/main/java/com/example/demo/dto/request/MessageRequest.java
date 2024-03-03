@@ -3,7 +3,6 @@ package com.example.demo.dto.request;
 import com.example.demo.models.Chat;
 import com.example.demo.models.Message;
 
-import com.example.demo.models.User;
 import lombok.Getter;
 import lombok.Setter;
 
