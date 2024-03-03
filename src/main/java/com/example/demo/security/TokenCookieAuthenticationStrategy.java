@@ -1,4 +1,4 @@
-package com.example.demo.security.config;
+package com.example.demo.security;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -15,11 +15,24 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
+/**
+ * Strategy class for token cookie authentication.
+ * Manages the authentication process and sets the token cookie.
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
 @AllArgsConstructor
 public class TokenCookieAuthenticationStrategy implements SessionAuthenticationStrategy {
-
 	private TokenCookieService tokenCookieService;
-
+	/**
+	 * Performs the authentication process and sets the token cookie.
+	 *
+	 * @param authentication the Authentication object representing the authentication
+	 * @param request        the HttpServletRequest
+	 * @param response       the HttpServletResponse
+	 * @throws SessionAuthenticationException if an error occurs during the authentication process
+	 */
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {

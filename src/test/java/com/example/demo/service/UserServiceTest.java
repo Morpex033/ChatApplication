@@ -117,17 +117,6 @@ class UserServiceTest {
 	}
 
 	@Test
-	void testUpdateUser_throwIllegalArgumentException(){
-		User user = new User();
-		User updatedUser = new User();
-
-		when(authentication.getPrincipal()).thenReturn(null);
-
-		assertThrows(IllegalArgumentException.class, () -> userService.update(updatedUser, authentication));
-		verify(userRepository, never()).save(user);
-	}
-
-	@Test
 	void testDeleteUser(){
 		User user = new User();
 

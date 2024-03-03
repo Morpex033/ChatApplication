@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,13 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Data
+/**
+ * Service class for managing tokens stored in cookies.
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
+@Setter
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,7 +45,12 @@ public class TokenCookieService {
 	private final JWEDecrypter jweDecrypter;
 	private JWEAlgorithm jweAlgorithm = JWEAlgorithm.DIR;
 	private EncryptionMethod encryptionMethod = EncryptionMethod.A128CBC_HS256;
-
+	/**
+	 * Generates a new token based on the authentication information.
+	 *
+	 * @param authentication the authentication object
+	 * @return the generated token
+	 */
 	public Token token(Authentication authentication) {
 		var now = Instant.now();
 		return new Token(UUID.randomUUID(), 
@@ -47,7 +59,12 @@ public class TokenCookieService {
 				.map(GrantedAuthority::getAuthority).toList(),
 				now, now.plus(tokenDuration));
 	}
-
+	/**
+	 * Serializes the token to a string.
+	 *
+	 * @param token the token to serialize
+	 * @return the serialized token as a string
+	 */
 	public String serializer(Token token){
 		var jweHeader = new JWEHeader.Builder(jweAlgorithm, encryptionMethod)
 				.keyID(token.id().toString())
@@ -71,7 +88,13 @@ public class TokenCookieService {
 		
 		return null;
 	}
-	
+	/**
+	 * Deserializes the token from the given string.
+	 *
+	 * @param string the string representing the serialized token
+	 * @return the deserialized token
+	 * @throws JOSEException if there is an error during deserialization
+	 */
 	public Token deserialize(String string) throws JOSEException{
 		try {
 			var encryptedJWT = EncryptedJWT.parse(string);

@@ -32,35 +32,64 @@ import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents a user entity in the application.
+ *
+ * <p>This class defines the structure of a user entity, including its unique identifier, username, password,
+ * email, active status, roles, and associated chats.</p>
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ * @see UserDetails
+ */
 @Data
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(force = true)
 public class User implements UserDetails {
+	/**
+	 * The unique identifier for the user.
+	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column
 	private UUID id;
-
+	/**
+	 * The username of the user.
+	 */
 	@Column
 	private String username;
-
+	/**
+	 * The password of the user.
+	 */
 	@Column
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
-
+	/**
+	 * The email address of the user.
+	 */
 	@Email
 	@Column(unique = true)
 	private String email;
-
+	/**
+	 * The active status of the user.
+	 */
 	@Column
 	private Boolean active;
-
+	/**
+	 * The {@link Role} assigned to the user.
+	 *
+	 * @see Role
+	 */
 	@ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
 	@CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
 	@Enumerated(EnumType.STRING)
 	private Collection<Role> roles = new HashSet<>();
-
+	/**
+	 * The list of {@link Chat} the user is associated with.
+	 *
+	 * @see Chat
+	 */
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonIgnore
 	private List<Chat> chats = new ArrayList<>();

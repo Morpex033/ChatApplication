@@ -16,18 +16,35 @@ import com.example.demo.repository.UserRepository;
 
 import lombok.Data;
 
+/**
+ * Service class for managing custom user details.
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
 @Service
 @Data
 public class CustomUserDetailsService
 		implements UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-
 	private final UserRepository userRepository;
-
+	/**
+	 * Loads user details by username.
+	 *
+	 * @param email the email address of the user
+	 * @return the UserDetails object representing the user
+	 * @throws UsernameNotFoundException if the user is not found
+	 */
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		return userRepository.findByEmail(email);
 	}
-
+	/**
+	 * Loads user details by authentication token.
+	 *
+	 * @param authenticationToken the authentication token
+	 * @return the UserDetails object representing the user
+	 * @throws IllegalArgumentException if the principal is not of type Token
+	 */
 	@Override
 	public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken)
 			throws IllegalArgumentException {

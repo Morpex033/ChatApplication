@@ -1,4 +1,4 @@
-package com.example.demo.security.config;
+package com.example.demo.security;
 
 import java.util.stream.Stream;
 
@@ -14,12 +14,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Converter class for token cookie authentication.
+ * Converts token cookie information from the HttpServletRequest into an Authentication object.
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
 @Slf4j
 @AllArgsConstructor
 public class TokenCookieAuthenticationConverter implements AuthenticationConverter {
-
 	private TokenCookieService tokenCookieService;
-
+	/**
+	 * Converts token cookie information from the HttpServletRequest into an Authentication object.
+	 *
+	 * @param request the HttpServletRequest containing the token cookie information
+	 * @return the Authentication object representing the token cookie authentication, or null if no token cookie is found
+	 */
 	@Override
 	public Authentication convert(HttpServletRequest request) {
 		if (request.getCookies() != null) {

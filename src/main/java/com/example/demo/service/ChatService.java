@@ -22,6 +22,12 @@ import com.example.demo.repository.UserRoleChatRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service class for managing chat-related operations.
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
 @Data
 @Slf4j
 @Service
@@ -30,7 +36,13 @@ public class ChatService {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final UserRoleChatRepository userRoleChatRepository;
-
+    /**
+     * Saves a new chat.
+     *
+     * @param request   the ChatRequest object containing chat data
+     * @param auth      the Authentication object representing the authenticated user
+     * @return          the saved Chat object
+     */
     public Chat save(ChatRequest request, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();
@@ -50,7 +62,12 @@ public class ChatService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Retrieves a chat by its ID.
+     *
+     * @param id    the ID of the chat to retrieve
+     * @return      the ChatResponse object containing chat details
+     */
     public ChatResponse findById(String id) {
         Chat chat = chatRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IllegalStateException("Chat does not exist"));
@@ -58,7 +75,12 @@ public class ChatService {
         return new ChatResponse(chat.getId(), chat.getName(), chat.getUsers(), messageRepository.findAll().stream()
                 .filter(message -> message.getChatId().equals(chat.getId())).toList());
     }
-
+    /**
+     * Updates an existing chat.
+     *
+     * @param request   the ChatRequest object containing updated chat data
+     * @param auth      the Authentication object representing the authenticated user
+     */
     public void update(ChatRequest request, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();
@@ -81,7 +103,12 @@ public class ChatService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Deletes a chat.
+     *
+     * @param request   the ChatRequest object containing the chat to delete
+     * @param auth      the Authentication object representing the authenticated user
+     */
     public void delete(ChatRequest request, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();
@@ -104,7 +131,12 @@ public class ChatService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Sets the admin role to a user in a chat.
+     *
+     * @param chat  the Chat object to set the admin role in
+     * @param auth  the Authentication object representing the authenticated user
+     */
     public void setAdminUser(Chat chat, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();
@@ -124,13 +156,23 @@ public class ChatService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Copies non-null details from an updated chat to an existing chat.
+     *
+     * @param existingChat  the existing Chat object
+     * @param updatedChat   the updated Chat object
+     */
     public void copyNotNullDetails(Chat existingChat, Chat updatedChat) {
         if (updatedChat.getName() != null && !updatedChat.getName().isEmpty()) {
             existingChat.setName(updatedChat.getName());
         }
     }
-
+    /**
+     * Sets a role to a user in a chat.
+     *
+     * @param request   the ChatRoleRequest object containing the chat ID, user ID, and role to set
+     * @param auth      the Authentication object representing the authenticated user
+     */
     public void setRoleToUser(ChatRoleRequest request, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();
@@ -157,7 +199,12 @@ public class ChatService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Adds a user to a chat.
+     *
+     * @param request   the ChatUserRequest object containing the chat ID and user ID
+     * @param auth      the Authentication object representing the authenticated user
+     */
     public void addUser(ChatUserRequest request, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();
@@ -187,7 +234,12 @@ public class ChatService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Removes a user from a chat.
+     *
+     * @param request   the ChatUserRequest object containing the chat ID and user ID
+     * @param auth      the Authentication object representing the authenticated user
+     */
     public void removeUser(ChatUserRequest request, Authentication auth) {
         if (auth.getPrincipal() != null) {
             User user = (User) auth.getPrincipal();

@@ -19,6 +19,12 @@ import com.example.demo.repository.UserRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service class for managing messages.
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
 @Service
 @Data
 @Slf4j
@@ -26,11 +32,19 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
-
+    /**
+     * Saves a new message.
+     *
+     * @param request         the request containing the message information
+     * @param authentication  the authentication object
+     * @return the saved message
+     * @throws IllegalArgumentException if the user is not a member of the chat
+     * @throws NullPointerException     if the user is not authenticated
+     */
     public Message save(MessageRequest request, Authentication authentication) {
         if (authentication.getPrincipal() != null) {
             User user = (User) authentication.getPrincipal();
-            Chat chat = chatRepository.findById(UUID.fromString(request.getChatId()))
+            Chat chat = chatRepository.findById(request.getChatId())
                     .orElseThrow(() -> new IllegalStateException("Chat does not exist"));
             Message message = request.getMessage();
             if (chat.getUsers().contains(user)) {
@@ -54,7 +68,14 @@ public class MessageService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Retrieves a message by its ID.
+     *
+     * @param id the ID of the message
+     * @return the retrieved message
+     * @throws IllegalStateException if the message does not exist
+     * @throws DataAccessException  if there is an error accessing data
+     */
     public Message findById(String id) {
         try {
             return messageRepository.findById(id)
@@ -64,11 +85,18 @@ public class MessageService {
             throw exception;
         }
     }
-
+    /**
+     * Updates an existing message.
+     *
+     * @param request         the request containing the updated message
+     * @param authentication  the authentication object
+     * @throws IllegalArgumentException if the user is not the author of the message
+     * @throws NullPointerException     if the user is not authenticated
+     */
     public void update(MessageRequest request, Authentication authentication) {
         if (authentication.getPrincipal() != null) {
             User user = (User) authentication.getPrincipal();
-            Chat chat = chatRepository.findById(UUID.fromString(request.getChatId()))
+            Chat chat = chatRepository.findById(request.getChatId())
                     .orElseThrow(() -> new IllegalStateException("Chat does not exist"));
             Message message = messageRepository.findById(request.getMessage().getId())
                     .orElseThrow(() -> new IllegalStateException("Message does not exist"));
@@ -87,11 +115,18 @@ public class MessageService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Deletes a message.
+     *
+     * @param request         the request containing the message to delete
+     * @param authentication  the authentication object
+     * @throws IllegalArgumentException if the user is not the author of the message or does not have appropriate role
+     * @throws NullPointerException     if the user is not authenticated
+     */
     public void delete(MessageRequest request, Authentication authentication) {
         if (authentication.getPrincipal() != null) {
             User user = (User) authentication.getPrincipal();
-            Chat chat = chatRepository.findById(UUID.fromString(request.getChatId()))
+            Chat chat = chatRepository.findById(request.getChatId())
                     .orElseThrow(() -> new IllegalStateException("Chat does not exist"));
             Message message = messageRepository.findById(request.getMessage().getId())
                     .orElseThrow(() -> new IllegalStateException("Message does not exist"));
@@ -116,7 +151,12 @@ public class MessageService {
             throw new NullPointerException("User must be authenticated");
         }
     }
-
+    /**
+     * Copies non-null details from one message to another.
+     *
+     * @param existingMessage the existing message
+     * @param newMessage      the new message with updated details
+     */
     public void copyNotNullDetails(Message existingMessage, Message newMessage) {
         if (newMessage.getContext() != null && !newMessage.getContext().isEmpty()) {
             existingMessage.setContext(newMessage.getContext());
