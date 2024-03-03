@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.2'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'com.github.ben-manes.versions' version '0.39.0'
 }
 
 group = 'com.example'
@@ -23,7 +24,6 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -31,6 +31,12 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation group: 'org.hibernate.orm', name: 'hibernate-core', version: '6.4.3.Final'
 	implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '8.0.1.Final'
+	// https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+	implementation group: 'org.springframework.security', name: 'spring-security-core', version: '6.2.1'
+	// https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
+	implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.38-rc3'
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '3.2.2'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'

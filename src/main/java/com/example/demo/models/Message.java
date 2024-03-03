@@ -1,35 +1,48 @@
 package com.example.demo.models;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Data;
 
+/**
+ * Represents a message entity in the application.
+ *
+ * <p>This class defines the structure of a message entity, including its unique identifier, content,
+ * timestamp, associated user ID, and associated chat ID.</p>
+ *
+ * @author Andrey Sharipov
+ * @version 1.0
+ */
 @Data
-@Entity
-@Table
+@Document(collection = "message")
 public class Message {
+	/**
+	 * The unique identifier for the message.
+	 */
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	private Long id;
-	@Column
+	private String id;
+	/**
+	 * The content of the message.
+	 */
 	private String context;
-	@Column
+	/**
+	 * The timestamp indicating when the message was sent.
+	 */
 	private LocalDateTime time;
-	@Column
-	private Boolean isRead;
-	@ManyToOne
-	@JoinColumn(name = "author")
-	private User user;
-	@ManyToOne
-	@JoinColumn
-	private Chat chat;
+	/**
+	 * The unique identifier of the {@link User} who sent the message.
+	 *
+	 * @see User
+	 */
+	private UUID userId;
+	/**
+	 * The unique identifier of the {@link Chat} to which the message belongs.
+	 *
+	 * @see Chat
+	 */
+	private UUID chatId;
 }
