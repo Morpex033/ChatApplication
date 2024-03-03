@@ -58,7 +58,7 @@ class MessageServiceTest {
         message.setContext("test");
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
         when(chatRepository.findById(any(UUID.class))).thenReturn(Optional.of(chat));
@@ -91,7 +91,7 @@ class MessageServiceTest {
         message.setContext("test");
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
         when(chatRepository.findById(any(UUID.class))).thenReturn(Optional.of(chat));
@@ -112,7 +112,7 @@ class MessageServiceTest {
         chat.setId(UUID.randomUUID());
         chat.getUsers().add(user);
 
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
 
@@ -157,7 +157,7 @@ class MessageServiceTest {
         message.setChatId(chat.getId());
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
         when(chatRepository.findById(any(UUID.class))).thenReturn(Optional.of(chat));
@@ -191,7 +191,7 @@ class MessageServiceTest {
         message.setChatId(UUID.randomUUID());
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
         when(chatRepository.findById(any(UUID.class))).thenReturn(Optional.of(chat));
@@ -219,7 +219,7 @@ class MessageServiceTest {
         message.setChatId(chat.getId());
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
 
@@ -261,7 +261,7 @@ class MessageServiceTest {
         chat.getUserRole().add(userRole);
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
         when(chatRepository.findById(any(UUID.class))).thenReturn(Optional.of(chat));
@@ -295,7 +295,7 @@ class MessageServiceTest {
         message.setChatId(chat.getId());
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
         when(chatRepository.findById(any(UUID.class))).thenReturn(Optional.of(chat));
@@ -321,7 +321,7 @@ class MessageServiceTest {
         message.setChatId(chat.getId());
 
         messageRequest.setMessage(message);
-        messageRequest.setChatId(chat.getId().toString());
+        messageRequest.setChatId(chat.getId());
 
         when(authentication.getPrincipal()).thenReturn(user);
 
